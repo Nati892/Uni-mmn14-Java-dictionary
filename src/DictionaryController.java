@@ -3,6 +3,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TableColumn;
+import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 
 import java.util.Iterator;
@@ -19,6 +20,13 @@ public class DictionaryController {
 
     @FXML
     private TableColumn<DictionaryEntry, String> C2Value;
+
+
+    @FXML
+    private TextField TFKey;
+
+    @FXML
+    private TextField TFvalue;
 
     @FXML
     private Button btnAddEntry;
@@ -92,9 +100,46 @@ public class DictionaryController {
         }
         System.out.println(currDictionary);
         Iterator<DictionaryEntry> iterator = currDictionary.iterator();
-        while (iterator.hasNext())
-        {    System.out.println("adding");
-          TableView.getItems().add(iterator.next());}
+        while (iterator.hasNext()) {
+            TableView.getItems().add(iterator.next());
+        }
+
+    }
+
+    private void repopulateDictionaryList() {
+
+        TableView.getItems().removeAll();
+        Iterator<DictionaryEntry> iterator = currDictionary.iterator();
+        while (iterator.hasNext()) {
+            TableView.getItems().add(iterator.next());
+        }
+
+    }
+
+
+
+    private void addToList(DictionaryMap map, DictionaryEntry newEntry) {
+        if (map != null && newEntry != null) {
+            map.insert(newEntry);
+        }
+        repopulateDictionaryList();
+    }
+
+    private void removeFromList() {
+        DictionaryEntry entry = (DictionaryEntry) TableView.getSelectionModel().getSelectedItem();
+        if (entry != null) {
+            currDictionary.remove(entry);
+            repopulateDictionaryList();
+        }
+    }
+
+    private void editEntryValue(String newVal) {
+        DictionaryEntry entry = (DictionaryEntry) TableView.getSelectionModel().getSelectedItem();
+        if (entry != null) {
+            int i = currDictionary.find(entry);
+            currDictionary.getEntry(i).setValue(newVal);
+            repopulateDictionaryList();
+        }
 
     }
 

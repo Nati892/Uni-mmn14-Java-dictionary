@@ -5,7 +5,8 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 
 
-public class Dictionary extends Application {
+public class
+Dictionary extends Application {
 
     public void start(Stage primaryStage) throws Exception {
         Parent root = (Parent) FXMLLoader.load(getClass().getResource("Dictionary.fxml"));
