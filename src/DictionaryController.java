@@ -1,75 +1,110 @@
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.ListView;
-import javafx.scene.control.ScrollBar;
-import javafx.scene.input.DragEvent;
-import javafx.scene.input.MouseDragEvent;
+import javafx.scene.control.Button;
+import javafx.scene.control.TableView;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.cell.PropertyValueFactory;
 
-import java.awt.event.MouseEvent;
+import java.util.Iterator;
 
 public class DictionaryController {
 
+    private DictionaryMap currDictionary;
 
     @FXML
-    private ListView<String> DictionaryList;
+    private TableView TableView;
 
     @FXML
-    private ScrollBar ScrollBar;
+    private TableColumn<DictionaryEntry, String> C1Key;
 
     @FXML
-    void OnDragEntered(DragEvent event) {
+    private TableColumn<DictionaryEntry, String> C2Value;
+
+    @FXML
+    private Button btnAddEntry;
+
+    @FXML
+    private Button btnDeleteEntry;
+
+    @FXML
+    private Button btnOpen;
+
+    @FXML
+    private Button btnSave;
+
+    @FXML
+    private Button btnSaveAs;
+
+    @FXML
+    private Button btnUpdateEntry;
+
+
+    @FXML
+    void btnAddEntryOnClick(ActionEvent event) {
+        System.out.println("btnAddEntryOnClick clicked");//Debug
+    }
+
+    @FXML
+    void btnDeleteEntryOnClick(ActionEvent event) {
+        System.out.println("btnDeleteEntryOnClick clicked");//Debug
 
     }
 
     @FXML
-    void OnDragExited(DragEvent event) {
+    void btnOpenOnClick(ActionEvent event) {
+        System.out.println("btnOpenOnClick clicked");//Debug
 
     }
 
     @FXML
-    void OnDragOver(DragEvent event) {
+    void btnSaveAsOnClick(ActionEvent event) {
+        System.out.println("btnSaveAsOnClick clicked");//Debug
 
     }
 
     @FXML
-    void OnMouseDragOver(MouseDragEvent event) {
+    void btnSaveOnClick(ActionEvent event) {
+        System.out.println("btnSaveOnClick clicked");//Debug
 
     }
 
     @FXML
-    void OnMouseDragReleased(MouseDragEvent event) {
-
+    void btnUpdateEntryOnClick(ActionEvent event) {
+        System.out.println("btnUpdateEntryOnClick clicked");//Debug
     }
+
 
     @FXML
-    void ScrollBarOnMouseClicked(MouseEvent event) {
+    void initialize() {
+        System.out.println("started");//Debug
+        C1Key.setCellValueFactory(new PropertyValueFactory<>("key"));//setup cells
+        C2Value.setCellValueFactory(new PropertyValueFactory<>("value"));
+        currDictionary = new DictionaryMap();
+        populateDictionaryList();//first population
 
     }
 
-    @FXML
-    void onMouseDragEntered(MouseDragEvent event) {
 
-    }
+    private void populateDictionaryList() {
 
-    @FXML
-    public void initialize() {
-        System.out.println("a");
-     //   populateDictionaryList();
-        //TODO set vbox to not resizable
-        //TODO draw grid lines
-
-    }
-
-    private void populateDictionaryList(){
-        char c='0';
-        for (int i=0;i<70;i++)
-        {
-            c++;
-            DictionaryList.getItems().addAll(Character.toString(c));
+        for (int i = 1; i < 70; i++) {
+            currDictionary.insert(new DictionaryEntry("key" + i, "val" + i));
         }
+        System.out.println(currDictionary);
+        Iterator<DictionaryEntry> iterator = currDictionary.iterator();
+        while (iterator.hasNext())
+        {    System.out.println("adding");
+          TableView.getItems().add(iterator.next());}
+
     }
-
-
-
 
 }
+
+
+
+
+
+
+
+
 
