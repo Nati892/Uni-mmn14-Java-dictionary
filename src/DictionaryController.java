@@ -1,9 +1,6 @@
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
-import javafx.scene.control.TableView;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.FileChooser;
 
@@ -28,6 +25,8 @@ public class DictionaryController {
     @FXML
     private TableColumn<DictionaryEntry, String> C2Value;
 
+    @FXML
+    private Label LabelcurrFile;
 
     @FXML
     private TextField TFKey;
@@ -67,6 +66,7 @@ public class DictionaryController {
     @FXML
     void btnOpenOnClick(ActionEvent event) {
         chooseFile();
+        UpdateCurrFileLabel();
     }
 
     @FXML
@@ -78,14 +78,14 @@ public class DictionaryController {
             saveNewFile(file_name);
         } else {
             JOptionPane.showMessageDialog(null, "Invalid file name");
-
-
         }
+        UpdateCurrFileLabel();
     }
 
     @FXML
     void btnSaveOnClick(ActionEvent event) {
         SaveTofile(currFile);
+        UpdateCurrFileLabel();
     }
 
     @FXML
@@ -100,11 +100,9 @@ public class DictionaryController {
         C2Value.setCellValueFactory(new PropertyValueFactory<>("value"));
         currDictionary = new DictionaryMap();
         chooseInitialFile();
-        System.out.println("blat: " + currFile.getName());
         currDictionary = loadDictionaryFromFile(currFile);
-        System.out.println("*****\n\n\n*******\n" + currDictionary);
-
         populateDictionaryList();
+        UpdateCurrFileLabel();
     }
 
 
@@ -195,7 +193,7 @@ public class DictionaryController {
             result = (DictionaryMap) objectIn.readObject();
 
         } catch (Exception ex) {
-            JOptionPane.showMessageDialog(null, "Cannot load Dictionary from file! file name: "+file.getName());
+            JOptionPane.showMessageDialog(null, "Cannot load Dictionary from file! file name: " + file.getName());
             result = null;
         } finally {
 
@@ -246,7 +244,6 @@ public class DictionaryController {
         File selectedFile = fileChooser.showOpenDialog(null);
         if (selectedFile != null) {
             DictionaryMap map = loadDictionaryFromFile(selectedFile);
-            System.out.println(map);
             if (map != null) {
                 currFile = selectedFile;
                 currDictionary = map;
@@ -273,6 +270,15 @@ public class DictionaryController {
         }
         if (foundOne) {
             currFile = iFile;
+        }
+    }
+
+    private void UpdateCurrFileLabel() {
+        if (currFile == null) {
+            LabelcurrFile.setText("No file selected");
+        } else
+        {
+            LabelcurrFile.setText("Current file: "+currFile.getName());
         }
     }
 }
