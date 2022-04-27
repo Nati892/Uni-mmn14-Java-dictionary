@@ -1,4 +1,6 @@
-public class DictionaryEntry implements Comparable<DictionaryEntry> {
+import java.io.Serializable;
+
+public class DictionaryEntry implements Comparable<DictionaryEntry> , Serializable {
     private String key;
     private String value;
 
@@ -29,7 +31,7 @@ public class DictionaryEntry implements Comparable<DictionaryEntry> {
 
     @Override
     public String toString() {
-        return "DictioneryEntry{" + "Key='" + key + '\'' + ", Value='" + value + '\'' + '}';
+        return "DictionaryEntry{" + "Key='" + key + '\'' + ", Value='" + value + '\'' + '}';
     }
 
     @Override

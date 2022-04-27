@@ -1,8 +1,11 @@
+import java.io.File;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 
-public class DictionaryMap {
+//I made my own hashmap because I wanted to have an object of dataEntry and not just a key-value pair
+public class DictionaryMap implements Serializable {
 
 
     private ArrayList<DictionaryEntry> _data;
@@ -12,8 +15,7 @@ public class DictionaryMap {
     }
 
     public DictionaryEntry getEntry(int i) {
-        if (i > 0 && i < _data.size())
-            return _data.get(i);
+        if (i > 0 && i < _data.size()) return _data.get(i);
         return null;
     }
 
@@ -35,14 +37,12 @@ public class DictionaryMap {
         int result = -1;
 
         Iterator<DictionaryEntry> iterator = this._data.iterator();
-        if (!iterator.hasNext() || newEntry.getKey() == null)
-            return result;
+        if (!iterator.hasNext() || newEntry.getKey() == null) return result;
 
         while (iterator.hasNext()) {
             index++;
             DictionaryEntry curr = iterator.next();
-            if (curr.getKey().equals(newEntry.getKey()))
-                result = index;
+            if (curr.getKey().equals(newEntry.getKey())) result = index;
         }
         return result;
     }
@@ -56,8 +56,6 @@ public class DictionaryMap {
 
     @Override
     public String toString() {
-        return "DictionaryMap{" +
-                "_data=" + _data +
-                '}';
+        return "DictionaryMap{" + "_data=" + _data + '}';
     }
 }
