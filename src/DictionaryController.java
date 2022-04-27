@@ -1,7 +1,5 @@
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TableColumn;
@@ -11,13 +9,15 @@ import javafx.stage.FileChooser;
 
 import javax.swing.*;
 import java.io.*;
-import java.security.PublicKey;
 import java.util.Iterator;
 
 public class DictionaryController {
 
     private DictionaryMap currDictionary;
     private File currFile = null;
+    private final String DB_Dir_PATH = (System.getProperty("user.dir") + "\\Db");
+    private final String DB_FILE_EXTENSION = ".mydb";
+
 
     @FXML
     private TableView TableView;
@@ -66,12 +66,14 @@ public class DictionaryController {
 
     @FXML
     void btnOpenOnClick(ActionEvent event) {
-        openFile();
+        chooseFile();
     }
 
     @FXML
     void btnSaveAsOnClick(ActionEvent event) {
         String file_name = JOptionPane.showInputDialog("please choose file name");
+        if (file_name == null)
+            return;
         if (file_name.trim().length() > 0) {
             saveNewFile(file_name);
         } else {
@@ -97,30 +99,33 @@ public class DictionaryController {
         C1Key.setCellValueFactory(new PropertyValueFactory<>("key"));//setup cells
         C2Value.setCellValueFactory(new PropertyValueFactory<>("value"));
         currDictionary = new DictionaryMap();
-        populateDictionaryList();//first population
+        chooseInitialFile();
+        System.out.println("blat: " + currFile.getName());
+        currDictionary = loadDictionaryFromFile(currFile);
+        System.out.println("*****\n\n\n*******\n" + currDictionary);
 
+        populateDictionaryList();
     }
 
 
     private void populateDictionaryList() {
 
-        for (int i = 1; i < 30; i++) {
-            currDictionary.insert(new DictionaryEntry("key" + i, "val" + i));
-        }
-        System.out.println(currDictionary);
-        Iterator<DictionaryEntry> iterator = currDictionary.iterator();
-        while (iterator.hasNext()) {
-            TableView.getItems().add(iterator.next());
+        if (currDictionary != null) {
+            Iterator<DictionaryEntry> iterator = currDictionary.iterator();
+            while (iterator.hasNext()) {
+                TableView.getItems().add(iterator.next());
+            }
         }
 
     }
 
     private void repopulateDictionaryList() {
-
-        TableView.getItems().clear();
-        Iterator<DictionaryEntry> iterator = currDictionary.iterator();
-        while (iterator.hasNext()) {
-            TableView.getItems().add(iterator.next());
+        if (currDictionary != null) {
+            TableView.getItems().clear();
+            Iterator<DictionaryEntry> iterator = currDictionary.iterator();
+            while (iterator.hasNext()) {
+                TableView.getItems().add(iterator.next());
+            }
         }
 
     }
@@ -162,6 +167,9 @@ public class DictionaryController {
         DictionaryEntry entry = (DictionaryEntry) TableView.getSelectionModel().getSelectedItem();
         if (entry != null) {
             String newVal = JOptionPane.showInputDialog("Please enter a new value for '" + entry.getKey() + "'");
+            if (newVal == null)//in case of cancel
+                return;
+
             if (newVal.trim().length() != 0) {
                 int i = currDictionary.find(entry);
                 currDictionary.getEntry(i).setValue(newVal);
@@ -187,7 +195,7 @@ public class DictionaryController {
             result = (DictionaryMap) objectIn.readObject();
 
         } catch (Exception ex) {
-            JOptionPane.showMessageDialog(null, "Cannot load Dictionary from file!");
+            JOptionPane.showMessageDialog(null, "Cannot load Dictionary from file! file name: "+file.getName());
             result = null;
         } finally {
 
@@ -200,59 +208,76 @@ public class DictionaryController {
             } catch (Exception e) {
             }
             return result;
-        }}
-
-
-        private void saveNewFile (String newFileName){
-
-            String path = System.getProperty("user.dir");
-            path += "\\Db";
-            File file = new File(path + "\\" + newFileName + ".mydb"); //initialize File object and passing path as argument
-            SaveTofile(file);
-
         }
+    }
 
-        private void SaveTofile (File file){
-            if (file == null) {
-                JOptionPane.showMessageDialog(null, "Cannot save file!");
-                return;
-            }
 
-            try {
-                boolean result = file.createNewFile();  //creates a new file
-                FileOutputStream fos = new FileOutputStream(file);
-                ObjectOutputStream oos = new ObjectOutputStream(fos);
-                oos.writeObject(currDictionary);
-                oos.close();
-                currFile = file;
-            } catch (IOException e) {
-                JOptionPane.showMessageDialog(null, "Cannot save file!");
-            }
-        }
-
-        private void openFile () {
-
-            FileChooser fileChooser = new FileChooser();
-            fileChooser.setTitle("Choose Db File from this folder");
-            String path = System.getProperty("user.dir");
-            path += "\\Db";
-            File userDirectory = new File(path);
-            fileChooser.setInitialDirectory(userDirectory);
-            File selectedFile = fileChooser.showOpenDialog(null);
-            if (selectedFile != null) {
-                DictionaryMap map = loadDictionaryFromFile(selectedFile);
-                System.out.println(map);
-                if (map != null) {
-                    currFile = selectedFile;
-                    currDictionary = map;
-                    repopulateDictionaryList();
-                }
-            }
-
-        }
-
+    private void saveNewFile(String newFileName) {
+        File file = new File(DB_Dir_PATH + "\\" + newFileName + DB_FILE_EXTENSION); //initialize File object and passing path as argument
+        SaveTofile(file);
 
     }
+
+    private void SaveTofile(File file) {
+        if (file == null) {
+            JOptionPane.showMessageDialog(null, "Cannot save file!");
+            return;
+        }
+
+        try {
+            boolean result = file.createNewFile();  //creates a new file
+            FileOutputStream fos = new FileOutputStream(file);
+            ObjectOutputStream oos = new ObjectOutputStream(fos);
+            oos.writeObject(currDictionary);
+            oos.close();
+            currFile = file;
+        } catch (IOException e) {
+            JOptionPane.showMessageDialog(null, "Cannot save file!");
+        }
+    }
+
+    private void chooseFile() {
+
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Choose Db File from this folder");
+
+        File userDirectory = new File(DB_Dir_PATH);
+        fileChooser.setInitialDirectory(userDirectory);
+        File selectedFile = fileChooser.showOpenDialog(null);
+        if (selectedFile != null) {
+            DictionaryMap map = loadDictionaryFromFile(selectedFile);
+            System.out.println(map);
+            if (map != null) {
+                currFile = selectedFile;
+                currDictionary = map;
+                repopulateDictionaryList();
+            }
+        }
+    }
+
+    private void chooseInitialFile() {
+        File folder = new File(DB_Dir_PATH);
+        File[] listOfFiles = folder.listFiles();
+
+        File iFile = null;
+        boolean foundOne = false;
+
+        for (int i = 0; i < listOfFiles.length && !foundOne; i++) {
+            iFile = listOfFiles[i];
+            if (iFile.isFile()) {
+                if (iFile.getName().endsWith(DB_FILE_EXTENSION)) ;
+                {
+                    foundOne = true;
+                }
+            }
+        }
+        if (foundOne) {
+            currFile = iFile;
+        }
+    }
+}
+
+
 
 
 
