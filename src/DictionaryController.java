@@ -71,14 +71,7 @@ public class DictionaryController {
 
     @FXML
     void btnSaveAsOnClick(ActionEvent event) {
-        String file_name = JOptionPane.showInputDialog("please choose file name");
-        if (file_name == null)
-            return;
-        if (file_name.trim().length() > 0) {
-            saveNewFile(file_name);
-        } else {
-            JOptionPane.showMessageDialog(null, "Invalid file name");
-        }
+        saveToNewFile();
         UpdateCurrFileLabel();
     }
 
@@ -210,9 +203,18 @@ public class DictionaryController {
     }
 
 
-    private void saveNewFile(String newFileName) {
-        File file = new File(DB_Dir_PATH + "\\" + newFileName + DB_FILE_EXTENSION); //initialize File object and passing path as argument
-        SaveTofile(file);
+    private void saveToNewFile() {
+
+
+        String file_name = JOptionPane.showInputDialog("please choose file name");
+        if (file_name == null)
+            return;
+        if (file_name.trim().length() > 0) {
+            File file = new File(DB_Dir_PATH + "\\" + file_name + DB_FILE_EXTENSION); //initialize File object and passing path as argument
+            SaveTofile(file);
+        } else {
+            JOptionPane.showMessageDialog(null, "Invalid file name");
+        }
 
     }
 
@@ -276,9 +278,8 @@ public class DictionaryController {
     private void UpdateCurrFileLabel() {
         if (currFile == null) {
             LabelcurrFile.setText("No file selected");
-        } else
-        {
-            LabelcurrFile.setText("Current file: "+currFile.getName());
+        } else {
+            LabelcurrFile.setText("Current file: " + currFile.getName());
         }
     }
 }

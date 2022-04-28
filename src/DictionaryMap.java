@@ -13,7 +13,6 @@ public class DictionaryMap implements Serializable {
     public DictionaryMap() {
         this._data = new ArrayList<DictionaryEntry>();
     }
-
     public DictionaryEntry getEntry(int i) {
         if (i > 0 && i < _data.size()) return _data.get(i);
         return null;
