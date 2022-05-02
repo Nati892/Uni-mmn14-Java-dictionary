@@ -53,6 +53,20 @@ public class DictionaryController {
     @FXML
     private Button btnUpdateEntry;
 
+    @FXML
+    private Button btSearch;
+
+
+    @FXML
+    void btSearchOnClick(ActionEvent event) {
+
+        String key = JOptionPane.showInputDialog("Enter key name to search");
+        if (key != null) {
+            key = key.trim();
+            if (!SearchInTable(key))
+                JOptionPane.showMessageDialog(null, "cant find \"" + key + "\"");
+        }
+    }
 
     @FXML
     void btnAddEntryOnClick(ActionEvent event) {
@@ -97,6 +111,7 @@ public class DictionaryController {
         currDictionary = loadDictionaryFromFile(currFile);
         populateDictionaryList();
         UpdateCurrFileLabel();
+
     }
 
 
@@ -286,6 +301,17 @@ public class DictionaryController {
         } else {
             LabelcurrFile.setText("Current file: " + currFile.getName());
         }
+    }
+
+    private boolean SearchInTable(String key) {
+        boolean result = true;
+        if (currDictionary.find(key) != null) {
+            TableView.getSelectionModel().select(currDictionary.find(key));
+            TableView.scrollTo(currDictionary.find(key));
+        } else
+            result = false;
+
+        return result;
     }
 }
 

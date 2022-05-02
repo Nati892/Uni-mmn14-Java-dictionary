@@ -28,6 +28,7 @@
                       <Button fx:id="btnSave" mnemonicParsing="false" onAction="#btnSaveOnClick" text="Save" />
                       <Button fx:id="btnSaveAs" mnemonicParsing="false" onAction="#btnSaveAsOnClick" text="Save as" />
                       <Button fx:id="btnOpen" mnemonicParsing="false" onAction="#btnOpenOnClick" text="Open" />
+                  <Button fx:id="btSearch" mnemonicParsing="false" onAction="#btSearchOnClick" text="Search" />
                 </children>
             </HBox>
             <HBox prefHeight="41.0" prefWidth="1000.0">
