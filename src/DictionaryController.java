@@ -6,12 +6,13 @@ import javafx.stage.FileChooser;
 
 import javax.swing.*;
 import java.io.*;
-import java.util.Iterator;
+import java.util.Map;
 
 public class DictionaryController {
 
     private DictionaryMap currDictionary;
     private File currFile = null;
+
     private final String DB_Dir_PATH = (System.getProperty("user.dir") + "\\Db");
     private final String DB_FILE_EXTENSION = ".mydb";
 
@@ -102,9 +103,9 @@ public class DictionaryController {
     private void populateDictionaryList() {
 
         if (currDictionary != null) {
-            Iterator<DictionaryEntry> iterator = currDictionary.iterator();
-            while (iterator.hasNext()) {
-                TableView.getItems().add(iterator.next());
+
+            for (Map.Entry<String, DictionaryEntry> entry : currDictionary.entrySet()) {
+                TableView.getItems().add(entry.getValue());
             }
         }
 
@@ -113,12 +114,10 @@ public class DictionaryController {
     private void repopulateDictionaryList() {
         if (currDictionary != null) {
             TableView.getItems().clear();
-            Iterator<DictionaryEntry> iterator = currDictionary.iterator();
-            while (iterator.hasNext()) {
-                TableView.getItems().add(iterator.next());
+            for (Map.Entry<String, DictionaryEntry> entry : currDictionary.entrySet()) {
+                TableView.getItems().add(entry.getValue());
             }
         }
-
     }
 
 
@@ -137,6 +136,8 @@ public class DictionaryController {
 
     private void addToList(DictionaryMap map, DictionaryEntry newEntry) {
         if (map != null && newEntry != null) {
+
+
             map.insert(newEntry);
             repopulateDictionaryList();
         }
@@ -146,7 +147,7 @@ public class DictionaryController {
     private void removeFromList() {
         DictionaryEntry entry = (DictionaryEntry) TableView.getSelectionModel().getSelectedItem();
         if (entry != null) {
-            currDictionary.remove(entry);
+            currDictionary.remove(entry.getKey());
             repopulateDictionaryList();
         } else {
             JOptionPane.showMessageDialog(null, "Please select an entry");
@@ -162,8 +163,7 @@ public class DictionaryController {
                 return;
 
             if (newVal.trim().length() != 0) {
-                int i = currDictionary.find(entry);
-                currDictionary.getEntry(i).setValue(newVal);
+                currDictionary.find(entry.getKey()).setValue(newVal);
                 repopulateDictionaryList();
             }
         } else {
@@ -179,27 +179,32 @@ public class DictionaryController {
 
         FileInputStream fileIn = null;
         ObjectInputStream objectIn = null;
-        try {
-            fileIn = new FileInputStream(file);
-            objectIn = new ObjectInputStream(fileIn);
-
-            result = (DictionaryMap) objectIn.readObject();
-
-        } catch (Exception ex) {
-            JOptionPane.showMessageDialog(null, "Cannot load Dictionary from file! file name: " + file.getName());
-            result = null;
-        } finally {
-
+        if (file != null) {
             try {
-                objectIn.close();
-            } catch (Exception e) {
+                fileIn = new FileInputStream(file);
+                objectIn = new ObjectInputStream(fileIn);
+
+                result = (DictionaryMap) objectIn.readObject();
+
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(null, "Cannot load Dictionary from file! file name: " + file.getName());
+                result = null;
+            } finally {
+
+                try {
+                    objectIn.close();
+                } catch (Exception e) {
+                }
+                try {
+                    fileIn.close();
+                } catch (Exception e) {
+                }
+                if (result == null)
+                    result = new DictionaryMap();
             }
-            try {
-                fileIn.close();
-            } catch (Exception e) {
-            }
-            return result;
-        }
+        } else
+            result = new DictionaryMap();
+        return result;
     }
 
 

@@ -36,42 +36,6 @@ public class DictionaryEntry implements Comparable<DictionaryEntry> , Serializab
 
     @Override
     public int compareTo(DictionaryEntry o) {
-        return compareLexicographic(this.key, o.getKey());
-    }
-
-    //this is a helper method that is basically the logic for the compareTo method
-    //it compares the id of both members by a lexicographic order
-    private int compareLexicographic(String first, String second) {
-        int result = 0;
-        if (first != null && second != null) {
-
-            for (int i = 0; i < first.length() && i < second.length() && result == 0; i++) {
-                if (first.charAt(i) > second.charAt(i)) {
-                    result = 1;
-                } else {
-                    if (first.charAt(i) < second.charAt(i)) {
-                        result = -1;
-                    }
-                }
-            }
-            if (result == 0) {
-                if (first.length() > second.length()) {
-                    result = 1;
-                } else {
-                    result = -1;
-                }
-
-            }
-        } else {
-            if (first == null && second == null) {
-                result = 0;
-            } else {
-                {
-                    if (first == null) return -1;//second is big
-                    else return 1;//first is big
-                }
-            }
-        }
-        return result;
+        return this.getKey().compareTo(o.getKey());
     }
 }

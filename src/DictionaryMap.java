@@ -1,60 +1,56 @@
-import java.io.File;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
+import java.util.*;
 
-//I made my own hashmap because I wanted to have an object of dataEntry and not just a key-value pair
+
 public class DictionaryMap implements Serializable {
 
-
-    private ArrayList<DictionaryEntry> _data;
+    private static final String TAG = "DictionaryMap";//TODO delete line
+    private TreeMap<String, DictionaryEntry> map;
 
     public DictionaryMap() {
-        this._data = new ArrayList<DictionaryEntry>();
+        this.map = new TreeMap<String, DictionaryEntry>(new MyTreeComperator());
     }
+
     public DictionaryEntry getEntry(int i) {
-        if (i > 0 && i < _data.size()) return _data.get(i);
+        System.out.println(TAG + ": get Entry(int)" + " started");
+        if (i > 0 && i < map.size()) return map.get(i);
         return null;
     }
 
-    public Iterator<DictionaryEntry> iterator() {
-        return _data.iterator();
+    public DictionaryEntry getEntry(String key) {
+        System.out.println(TAG + ": get Entry(String)" + " started");
+        if (map.containsKey(key)) return map.get(key);
+        return null;
     }
+
 
     public void insert(DictionaryEntry newEntry) {
-        if (find(newEntry) < 0) {//avoid double keys
-            _data.add(newEntry);
-            Collections.sort(_data);
+        System.out.println(TAG + ": insert" + " started");
+        System.out.println("map looks like:" + this);
+        System.out.println("found : " + this.find(newEntry.getKey()));
+        if (newEntry != null && this.find(newEntry.getKey()) == null) {
+            map.put(newEntry.getKey(), newEntry);
         }
-
     }
 
-    //using linear search because time complexity is not important
-    public int find(DictionaryEntry newEntry) {
-        int index = -1;
-        int result = -1;
 
-        Iterator<DictionaryEntry> iterator = this._data.iterator();
-        if (!iterator.hasNext() || newEntry.getKey() == null) return result;
-
-        while (iterator.hasNext()) {
-            index++;
-            DictionaryEntry curr = iterator.next();
-            if (curr.getKey().equals(newEntry.getKey())) result = index;
-        }
-        return result;
+    public Set<Map.Entry<String, DictionaryEntry>> entrySet() {
+        System.out.println(TAG + ": entry set" + " started");
+        return map.entrySet();
     }
 
-    public void remove(DictionaryEntry entry) {
-        if (entry != null) {
-            _data.remove(entry);
-        }
+    public DictionaryEntry find(String key) {
+        System.out.println(TAG + ": find" + " started with key->" + key);
+        return map.get(key);
+    }
 
+    public void remove(String key) {
+        System.out.println(TAG + ": remove" + " started");
+        map.remove(key);
     }
 
     @Override
     public String toString() {
-        return "DictionaryMap{" + "_data=" + _data + '}';
+        return "DictionaryMap{" + "_data=" + map + '}';
     }
 }
