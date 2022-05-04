@@ -1,6 +1,9 @@
 import java.io.Serializable;
 import java.util.Comparator;
 
+/**
+ * A comperator for the treemap, compares in a lexicographic manner
+ */
 public class MyTreeComperator implements Comparator<String>, Serializable {
 
     @Override

@@ -34,6 +34,9 @@ public class DictionaryEntry implements Comparable<DictionaryEntry> , Serializab
         return "DictionaryEntry{" + "Key='" + key + '\'' + ", Value='" + value + '\'' + '}';
     }
 
+    /**
+     * compares in lexicographic order
+     */
     @Override
     public int compareTo(DictionaryEntry o) {
         return this.getKey().compareTo(o.getKey());

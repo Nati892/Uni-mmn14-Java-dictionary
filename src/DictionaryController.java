@@ -13,8 +13,8 @@ public class DictionaryController {
     private DictionaryMap currDictionary;
     private File currFile = null;
 
-    private final String DB_Dir_PATH = (System.getProperty("user.dir") + "\\Db");
-    private final String DB_FILE_EXTENSION = ".mydb";
+    private final String DB_Dir_PATH = (System.getProperty("user.dir") + "\\Db"); //the Db directory path
+    private final String DB_FILE_EXTENSION = ".mydb";//the db files extension
 
 
     @FXML
@@ -59,7 +59,6 @@ public class DictionaryController {
 
     @FXML
     void btSearchOnClick(ActionEvent event) {
-
         String key = JOptionPane.showInputDialog("Enter key name to search");
         if (key != null) {
             key = key.trim();
@@ -107,8 +106,10 @@ public class DictionaryController {
         C1Key.setCellValueFactory(new PropertyValueFactory<>("key"));//setup cells
         C2Value.setCellValueFactory(new PropertyValueFactory<>("value"));
         currDictionary = new DictionaryMap();
-        chooseInitialFile();
-        currDictionary = loadDictionaryFromFile(currFile);
+        chooseInitialFile();//choose first db file from the files in the db folder
+        currDictionary = loadDictionaryFromFile(currFile);// load the dictionary from the file selected
+        if (currDictionary == null)
+            currDictionary = new DictionaryMap();
         populateDictionaryList();
         UpdateCurrFileLabel();
 
@@ -116,9 +117,7 @@ public class DictionaryController {
 
 
     private void populateDictionaryList() {
-
         if (currDictionary != null) {
-
             for (Map.Entry<String, DictionaryEntry> entry : currDictionary.entrySet()) {
                 TableView.getItems().add(entry.getValue());
             }
@@ -126,12 +125,10 @@ public class DictionaryController {
 
     }
 
-    private void repopulateDictionaryList() {
+    private void repopulateDictionaryList() {//clear the table and populate it again
         if (currDictionary != null) {
             TableView.getItems().clear();
-            for (Map.Entry<String, DictionaryEntry> entry : currDictionary.entrySet()) {
-                TableView.getItems().add(entry.getValue());
-            }
+            populateDictionaryList();
         }
     }
 
@@ -151,9 +148,7 @@ public class DictionaryController {
 
     private void addToList(DictionaryMap map, DictionaryEntry newEntry) {
         if (map != null && newEntry != null) {
-
-
-            map.insert(newEntry);
+            map.insert(newEntry);//insert a new object to the map and reload table
             repopulateDictionaryList();
         }
     }
@@ -170,6 +165,7 @@ public class DictionaryController {
     }
 
 
+    //find an entry if exists and then edit it
     private void editEntryValue() {
         DictionaryEntry entry = (DictionaryEntry) TableView.getSelectionModel().getSelectedItem();
         if (entry != null) {
@@ -178,7 +174,7 @@ public class DictionaryController {
                 return;
 
             if (newVal.trim().length() != 0) {
-                currDictionary.find(entry.getKey()).setValue(newVal);
+                currDictionary.getEntry(entry.getKey()).setValue(newVal);
                 repopulateDictionaryList();
             }
         } else {
@@ -189,13 +185,14 @@ public class DictionaryController {
 
     }
 
+
     private DictionaryMap loadDictionaryFromFile(File file) {
-        DictionaryMap result = null;
+        DictionaryMap result = null; //the new dictionary map to work with
 
         FileInputStream fileIn = null;
         ObjectInputStream objectIn = null;
         if (file != null) {
-            try {
+            try {//try to open and read from the file
                 fileIn = new FileInputStream(file);
                 objectIn = new ObjectInputStream(fileIn);
 
@@ -206,7 +203,7 @@ public class DictionaryController {
                 result = null;
             } finally {
 
-                try {
+                try {//try to close file related objects
                     objectIn.close();
                 } catch (Exception e) {
                 }
@@ -214,23 +211,20 @@ public class DictionaryController {
                     fileIn.close();
                 } catch (Exception e) {
                 }
-                if (result == null)
-                    result = new DictionaryMap();
             }
         } else
-            result = new DictionaryMap();
+            result = null;
         return result;
     }
 
 
     private void saveToNewFile() {
 
-
         String file_name = JOptionPane.showInputDialog("please choose file name");
         if (file_name == null)
             return;
         if (file_name.trim().length() > 0) {
-            File file = new File(DB_Dir_PATH + "\\" + file_name + DB_FILE_EXTENSION); //initialize File object and passing path as argument
+            File file = new File(DB_Dir_PATH + "\\" + file_name + DB_FILE_EXTENSION); //initializing File object, and passing path as argument
             SaveTofile(file);
         } else {
             JOptionPane.showMessageDialog(null, "Invalid file name");
@@ -240,7 +234,7 @@ public class DictionaryController {
 
     private void SaveTofile(File file) {
         if (file == null) {
-            JOptionPane.showMessageDialog(null, "Cannot save file!");
+            saveToNewFile();
             return;
         }
 
@@ -258,8 +252,8 @@ public class DictionaryController {
 
     private void chooseFile() {
 
-        FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Choose Db File from this folder");
+        FileChooser fileChooser = new FileChooser();//using preset file chooser
+        fileChooser.setTitle("Choose Db File from this folder only!");
 
         File userDirectory = new File(DB_Dir_PATH);
         fileChooser.setInitialDirectory(userDirectory);
@@ -270,18 +264,21 @@ public class DictionaryController {
                 currFile = selectedFile;
                 currDictionary = map;
                 repopulateDictionaryList();
+            } else {
+                if (currDictionary == null)
+                    currDictionary = new DictionaryMap();
             }
         }
     }
 
-    private void chooseInitialFile() {
+    private void chooseInitialFile() {// called on startup, and chooses first file
         File folder = new File(DB_Dir_PATH);
         File[] listOfFiles = folder.listFiles();
 
         File iFile = null;
         boolean foundOne = false;
 
-        for (int i = 0; i < listOfFiles.length && !foundOne; i++) {
+        for (int i = 0; i < listOfFiles.length && !foundOne; i++) {//catch the first file that as the right extension and try to work with that one
             iFile = listOfFiles[i];
             if (iFile.isFile()) {
                 if (iFile.getName().endsWith(DB_FILE_EXTENSION)) ;
@@ -295,7 +292,7 @@ public class DictionaryController {
         }
     }
 
-    private void UpdateCurrFileLabel() {
+    private void UpdateCurrFileLabel() {//update the current file name label
         if (currFile == null) {
             LabelcurrFile.setText("No file selected");
         } else {
@@ -303,11 +300,12 @@ public class DictionaryController {
         }
     }
 
+
     private boolean SearchInTable(String key) {
         boolean result = true;
-        if (currDictionary.find(key) != null) {
-            TableView.getSelectionModel().select(currDictionary.find(key));
-            TableView.scrollTo(currDictionary.find(key));
+        if (currDictionary.getEntry(key) != null) {
+            TableView.getSelectionModel().select(currDictionary.getEntry(key));//find the entry and choose it
+            TableView.scrollTo(currDictionary.getEntry(key));//go to found entry
         } else
             result = false;
 
