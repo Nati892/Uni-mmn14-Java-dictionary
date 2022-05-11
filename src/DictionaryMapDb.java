@@ -1,15 +1,17 @@
 import javafx.stage.FileChooser;
 
 import javax.swing.*;
+import javax.swing.filechooser.FileFilter;
 import java.io.*;
 import java.util.Map;
 import java.util.Set;
 
 /**
  * This is a singleton class that handles communication with the current DictionaryMap and files
+ * Chen said it's ok in the forum
  */
 public class DictionaryMapDb {
-
+    //the single instance
     private static DictionaryMapDb DictionaryMapDb_instance = null;
 
     private DictionaryMap dictionaryMap = null;
@@ -17,40 +19,24 @@ public class DictionaryMapDb {
     private final String DB_Dir_PATH = (System.getProperty("user.dir") + "\\Db"); //the Db directory path
     private final String DB_FILE_EXTENSION = ".mydb";//the db files extension
 
-
+    /**
+     * only way to get this class's instance
+     *
+     * @return a DictionaryMapDb instance
+     */
     public static DictionaryMapDb getInstance() {
-        if (DictionaryMapDb_instance == null)
+        if (DictionaryMapDb_instance == null)//make sure its initialized
             DictionaryMapDb_instance = new DictionaryMapDb();
         return DictionaryMapDb_instance;
     }
 
-
+    //constructor
     private DictionaryMapDb() {
         chooseInitialFile();
         DictionaryMap temp = loadDictionaryFromFile(currentFile);
         if (temp != null)
             dictionaryMap = temp;// load the dictionary from the file selected
         else
-            dictionaryMap = new DictionaryMap();
-    }
-
-
-    private void chooseFile() {
-        FileChooser fileChooser = new FileChooser();//using preset file chooser
-        fileChooser.setTitle("Choose Db File from this folder only!");
-
-        File userDirectory = new File(DB_Dir_PATH);
-        fileChooser.setInitialDirectory(userDirectory);
-        File selectedFile = fileChooser.showOpenDialog(null);
-        if (selectedFile != null) {
-            DictionaryMap map = loadDictionaryFromFile(selectedFile);
-            if (map != null) {
-                currentFile = selectedFile;
-                dictionaryMap = map;
-            }
-
-        }
-        if (dictionaryMap == null)
             dictionaryMap = new DictionaryMap();
     }
 
@@ -88,11 +74,26 @@ public class DictionaryMapDb {
     public boolean chooseFileFromDir() {
         boolean newFileChosen = false;
 
-        FileChooser fileChooser = new FileChooser();//using preset file chooser
-        fileChooser.setTitle("Choose Db File from this folder only!");
-        File userDirectory = new File(DB_Dir_PATH);
-        fileChooser.setInitialDirectory(userDirectory);
-        File selectedFile = fileChooser.showOpenDialog(null);
+        JFileChooser fileChooser = new JFileChooser(DB_Dir_PATH);//using preset file chooser
+        fileChooser.setDialogTitle("Please choose a file from this folder only!");
+        fileChooser.setFileFilter(//add file filter for .mydb files
+                new FileFilter() {
+                    @Override
+                    public boolean accept(File f) {
+                        if (f.getName().endsWith(DB_FILE_EXTENSION))
+                            return true;
+                        return false;
+                    }
+
+                    @Override
+                    public String getDescription() {
+                        return DB_FILE_EXTENSION.substring(1);
+                    }
+                });
+
+        fileChooser.showOpenDialog(null);
+        File selectedFile = fileChooser.getSelectedFile();
+
         if (selectedFile != null) {
             DictionaryMap map = loadDictionaryFromFile(selectedFile);
             if (map != null) {
@@ -129,7 +130,12 @@ public class DictionaryMapDb {
         }
     }
 
-
+    /**
+     * adds an entry to the current db (unsaved)
+     *
+     * @param newEntry the entry to enter of type DictionaryEntry
+     * @return true if entered successfully
+     */
     public boolean addEntry(DictionaryEntry newEntry) {
         boolean isAdded = false;
         if (dictionaryMap != null && newEntry != null) {
@@ -139,6 +145,12 @@ public class DictionaryMapDb {
         return isAdded;
     }
 
+    /**
+     * removes an entry from the current db (unsaved)
+     *
+     * @param newEntry the entry to remove of type DictionaryEntry
+     * @return true if removed successfully
+     */
     public boolean removeEntry(DictionaryEntry newEntry) {
         boolean isRemoved = false;
         if (dictionaryMap != null && newEntry != null) {
@@ -148,6 +160,12 @@ public class DictionaryMapDb {
         return isRemoved;
     }
 
+    /**
+     * removes an entry from the current db (unsaved)
+     *
+     * @param key the key of entry to remove of type DictionaryEntry
+     * @return true if removed successfully
+     */
     public boolean removeEntry(String key) {
         boolean isRemoved = false;
         if (dictionaryMap != null) {
@@ -157,6 +175,12 @@ public class DictionaryMapDb {
         return isRemoved;
     }
 
+    /**
+     * Edit an entry in the current db (unsaved)
+     *
+     * @param newEntry the entry to edit of type DictionaryEntry
+     * @return true if edited successfully
+     */
     public boolean EditEntry(DictionaryEntry newEntry) {
         boolean isEdited = false;
         if (dictionaryMap != null && newEntry != null) {
@@ -166,51 +190,88 @@ public class DictionaryMapDb {
         return isEdited;
     }
 
+    /**
+     * @return String of current selected file name, null if no selected
+     */
     public String getSelectedFileName() {
         if (currentFile != null)
             return currentFile.getName();
         return null;
     }
 
+
     private void SaveTofile(File file) {
         if (file == null) {
             file = currentFile;
         }
+        FileOutputStream fos = null;
+        ObjectOutputStream oos = null;
+
         try {
             if (!file.equals(currentFile))
                 file.createNewFile();  //creates a new file
-            FileOutputStream fos = new FileOutputStream(file);
-            ObjectOutputStream oos = new ObjectOutputStream(fos);
+            fos = new FileOutputStream(file);
+            oos = new ObjectOutputStream(fos);
             oos.writeObject(dictionaryMap);
             oos.close();
             currentFile = file;
         } catch (IOException e) {
             JOptionPane.showMessageDialog(null, "Cannot save file!");
+        } finally {
+            try {
+                fos.close();
+            } catch (Exception e) {
+            }
+            try {
+                oos.close();
+            } catch (Exception e) {
+            }
         }
     }
 
+    /**
+     * Save the changes made to db in current file
+     */
     public void saveToCurrFile() {
         if (currentFile != null)
             SaveTofile(currentFile);
     }
 
+    /**
+     * Save the changes made to db in new file
+     *
+     * @param fileName
+     */
     public void SaveToNewFile(String fileName) {
         File file = new File(DB_Dir_PATH + "\\" + fileName + DB_FILE_EXTENSION); //initializing File object, and passing path as argument
         SaveTofile(file);
     }
 
+    /**
+     *
+     * @param key the key of the wanted dictionary entry
+     * @return the Dictionary entry or null if non found
+     */
     public DictionaryEntry getEntry(String key) {
         if (dictionaryMap != null)
             return dictionaryMap.getEntry(key);
         return null;
     }
 
+    /**
+     *
+     * @param index  the index of the wanted dictionary entry
+     * @return the Dictionary entry or null if non found
+     */
     public DictionaryEntry getEntry(int index) {
         if (dictionaryMap != null)
             return dictionaryMap.getEntry(index);
         return null;
     }
 
+    /**
+     * @return an entry set of the Data structure
+     */
     public Set<Map.Entry<String, DictionaryEntry>> entrySet() {
         if (dictionaryMap != null)
             return dictionaryMap.entrySet();

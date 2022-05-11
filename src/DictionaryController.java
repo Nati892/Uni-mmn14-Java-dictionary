@@ -2,10 +2,8 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.stage.FileChooser;
 
 import javax.swing.*;
-import java.io.*;
 import java.util.Map;
 
 public class DictionaryController {
@@ -113,7 +111,7 @@ public class DictionaryController {
 
     }
 
-
+//populates the table
     private void populateDictionaryList() {
         if (currDictionaryMapDb != null) {
             if (currDictionaryMapDb.entrySet() != null) {
@@ -166,7 +164,7 @@ public class DictionaryController {
             if (newVal == null)//in case of cancel
                 return;
 
-            if (newVal.trim().length() != 0) {
+            if (newVal.trim().length() != 0) {//don't change if new value is only white chars
                 currDictionaryMapDb.getEntry(entry.getKey()).setValue(newVal);
                 repopulateDictionaryList();
             }
